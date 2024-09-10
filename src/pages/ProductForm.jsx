@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import Swal from 'sweetalert2';
 
 const ProductForm = ({ product, setProducts, setIsEditing }) => {
   const [formProduct, setFormProduct] = useState({ title: '', description: '', name: '' });
-  const [formError, setFormError] = useState('');
-  const [successMessage, setSuccessMessage] = useState('');
+  
 
   useEffect(() => {
     if (product) {
@@ -16,12 +16,17 @@ const ProductForm = ({ product, setProducts, setIsEditing }) => {
     }
   }, [product]);
 
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const accessToken = sessionStorage.getItem('access_token');
 
     if (!accessToken) {
-      setFormError('No access token found.');
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'No access token found.',
+      });
       return;
     }
 
@@ -39,12 +44,18 @@ const ProductForm = ({ product, setProducts, setIsEditing }) => {
           setProducts(prevProducts =>
             prevProducts.map(p => (p.id === product.id ? { ...p, ...formProduct } : p))
           );
-          setSuccessMessage('Title updated successfully.');
-          setFormError('');
+          Swal.fire({
+            icon: 'success',
+            title: 'Success',
+            text: 'Title updated successfully.',
+          });
           setIsEditing(null);
         } else {
-          setFormError('Failed to update product.');
-          setSuccessMessage('');
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Failed to update Title.',
+          });
         }
       } else {
         // Add new product
@@ -56,19 +67,34 @@ const ProductForm = ({ product, setProducts, setIsEditing }) => {
         });
 
         if (response.data.message === "Title created successfully") {
-          setProducts(prevProducts => [...prevProducts, formProduct]);
-          setSuccessMessage('Product added successfully.');
-          setFormError('');
+        
+          setProducts(prevProducts => [...prevProducts, response.data.product || formProduct]);
+          setFormProduct({ title: '', description: '', name: '' });
+          
+
+          Swal.fire({
+            icon: 'success',
+            title: 'Success',
+            text: 'Title added successfully.',
+          });
+    
         } else {
-          setFormError('Failed to add product.');
-          setSuccessMessage('');
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Failed to add product.',
+          });
         }
       }
     } catch (err) {
       console.error('Error:', err);
-      setFormError('An error occurred while processing the product.');
-      setSuccessMessage('');
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'An error occurred while processing the product.',
+      });
     }
+
   };
 
   return (
@@ -97,8 +123,7 @@ const ProductForm = ({ product, setProducts, setIsEditing }) => {
         className="block w-full p-2 mb-2 border rounded"
         required
       />
-      {formError && <p className="text-red-600 mb-2">{formError}</p>}
-      {successMessage && <p className="text-green-600 mb-2">{successMessage}</p>}
+
       <button
         type="submit"
         className="w-full py-2 bg-blue-600 text-white rounded"

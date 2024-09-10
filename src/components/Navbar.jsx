@@ -11,22 +11,28 @@ const Navbar = () => {
   }, []);
 
   const handleLogout = () => {
-    sessionStorage.removeItem('access_token'); 
+    sessionStorage.removeItem('access_token');
     setIsLoggedIn(false);
     navigate('/');
   };
 
+  
   return (
-    <nav className=' bg-blue-400 flex gap-10 p-10'>
+    <nav className='bg-blue-400 flex items-center gap-10 p-10'>
       {isLoggedIn ? (
         <>
-          <Link to="/products">Products</Link>
-          
-          <button onClick={handleLogout}>Logout</button>
+          <button
+            onClick={handleLogout}
+            className='bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700'
+          >
+            Logout
+          </button>
         </>
       ) : (
-        <Link to="/">Login</Link>
+        <Link to="/" className='text-white hover:underline'>Login</Link>
       )}
+
+      <Link to="/products" className='text-white hover:underline'>Products</Link>
     </nav>
   );
 };
